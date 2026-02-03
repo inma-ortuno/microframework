@@ -6,8 +6,8 @@ class FrontController {
         require 'libs/View.php';
         require 'setup.php';
 
-        // Hacemos visible la variable $config creada en setup.php
-        global $config;
+        // Recuperamos SIEMPRE la instancia del Config
+        $config = Config::singleton();
 
         // 1. Obtener la ruta solicitada
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -52,3 +52,4 @@ class FrontController {
     }
 }
 ?>
+
