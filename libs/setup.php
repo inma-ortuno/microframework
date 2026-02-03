@@ -12,8 +12,16 @@ $config->set('modelsFolder', 'models/');
 $config->set('viewsFolder', 'views/');
 
 // Parámetros de conexión a la BD
-$config->set('dbhost', 'localhost');
-$config->set('dbname', 'dwesmvc');
+//$config->set('dbhost', 'localhost');
+//$config->set('dbname', 'dwesmvc');
+//$config->set('dbuser', 'root');
+//$config->set('dbpass', '');
+
+// Parámetros de conexión a la BD de Railway
+$config->set('dbhost', 'ballast.proxy.rlwy.net:38770');
+$config->set('dbname', 'railway');
 $config->set('dbuser', 'root');
-$config->set('dbpass', '');
+$config->set('dbpass', 'QgATkbnDsApTCriTZaQTKvuNwvupMDaL');
+
+//mysql://root:QgATkbnDsApTCriTZaQTKvuNwvupMDaL@ballast.proxy.rlwy.net:38770/railway
 ?>
