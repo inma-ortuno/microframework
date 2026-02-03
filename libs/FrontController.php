@@ -14,7 +14,7 @@ class FrontController {
         if (!empty($_REQUEST['controlador'])) {
             $controllerName = $_REQUEST['controlador'] . 'Controller';
         } else {
-            $controllerName = "ItemController"; // Controlador por defecto
+            $controllerName = "ItemAutoController"; // Controlador por defecto
         }
 
         // Determinar acción
