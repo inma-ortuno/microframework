@@ -6,10 +6,13 @@ class FrontController {
         require 'libs/View.php';
         require 'setup.php';
 
-        // 1. Obtener la ruta real solicitada
+        // Hacemos visible la variable $config creada en setup.php
+        global $config;
+
+        // 1. Obtener la ruta solicitada
         $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-        // 2. Eliminar /public o el directorio base si existe
+        // 2. Eliminar el directorio base si existe
         $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
         if ($basePath !== '' && strpos($requestUri, $basePath) === 0) {
             $requestUri = substr($requestUri, strlen($basePath));
@@ -20,7 +23,6 @@ class FrontController {
 
         // 4. Determinar controlador y acción
         if ($requestUri === '') {
-            // Ruta raíz → controlador por defecto
             $controllerName = "ItemController";
             $actionName = "listar";
         } else {
@@ -30,7 +32,6 @@ class FrontController {
         }
 
         // 5. Cargar controlador
-        global $config;
         $controllerPath = $config->get('controllersFolder') . $controllerName . '.php';
 
         if (!file_exists($controllerPath)) {
