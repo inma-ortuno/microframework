@@ -1,50 +1,53 @@
 <?php
-// Esta clase es el controlador principal de la aplicación web
-// Si queremos utilizar alguna acción de un controlador, al final venimos a éste
-// ya que siempre se usa index.php y se le pasa el controlador y la acción
 class FrontController {
-      static function main() {
-            //Incluimos algunas clases:
-            require 'libs/Config.php'; // de configuracion
-            require 'libs/SPDO.php'; // PDO con singleton
-            require 'libs/View.php'; // Mini motor de plantillas
-            require 'setup.php'; //Archivo con configuraciones.
+    static function main() {
+        require 'libs/Config.php';
+        require 'libs/SPDO.php';
+        require 'libs/View.php';
+        require 'setup.php';
 
-            // Con el objetivo de no repetir nombre de clases, nuestros controladores
-            // terminarán todos en Controller. Por ej, la clase controladora Items, será ItemsController
+        // 1. Obtener la ruta real solicitada
+        $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-            // Formamos el nombre del Controlador o en su defecto, asumimos que es el ItemController
-            // En nuestra aplicación podemos cambiar el controlador por defecto por el que consideremos
-            // por ejemplo "IndexController".
-            if (!empty($_REQUEST['controlador']))
-                  $controllerName = $_REQUEST['controlador'] . 'Controller';
-            else
-                  $controllerName = "ItemController";
+        // 2. Eliminar /public o el directorio base si existe
+        $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+        if ($basePath !== '' && strpos($requestUri, $basePath) === 0) {
+            $requestUri = substr($requestUri, strlen($basePath));
+        }
 
-            // Lo mismo sucede con las acciones, si no hay acción, tomamos index como acción por defecto
-            if (!empty($_REQUEST['accion']))
-                  $actionName = $_REQUEST['accion'];
-            else
-                  $actionName = "listar";
+        // 3. Normalizar
+        $requestUri = trim($requestUri, '/');
 
-            // Obtenemos la ruta a la carpeta con los controladores de la configuración de la app
-            // y generamos la ruta completa al controlador elegido
-            $controllerPath = $config->get('controllersFolder') . $controllerName . '.php';
+        // 4. Determinar controlador y acción
+        if ($requestUri === '') {
+            // Ruta raíz → controlador por defecto
+            $controllerName = "ItemController";
+            $actionName = "listar";
+        } else {
+            $parts = explode('/', $requestUri);
+            $controllerName = ucfirst(array_shift($parts)) . 'Controller';
+            $actionName = $parts ? array_shift($parts) : 'listar';
+        }
 
-            // Incluimos el fichero que contiene nuestra clase controladora solicitada
-            if (is_file($controllerPath))
-                  require $controllerPath;
-            else
-                  die('El controlador no existe - 404 not found');
+        // 5. Cargar controlador
+        global $config;
+        $controllerPath = $config->get('controllersFolder') . $controllerName . '.php';
 
-            //Si todo esta bien, creamos una instancia del controlador y llamamos a la acción
-            if (class_exists($controllerName) && method_exists($controllerName, $actionName)) {
-                  $controller = new $controllerName();
-                  $controller->$actionName();
-            } else {
-                  trigger_error($controllerName . '->' . $actionName . ' no existe', E_USER_NOTICE);
-                  return false;
-            }
-      }
+        if (!file_exists($controllerPath)) {
+            http_response_code(404);
+            die("Controlador no encontrado: $controllerName");
+        }
+
+        require $controllerPath;
+
+        // 6. Ejecutar acción
+        if (!class_exists($controllerName) || !method_exists($controllerName, $actionName)) {
+            http_response_code(404);
+            die("No existe la acción $actionName en $controllerName");
+        }
+
+        $controller = new $controllerName();
+        $controller->$actionName();
+    }
 }
 ?>
