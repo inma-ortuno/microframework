@@ -23,7 +23,7 @@ class FrontController {
 
         // 4. Determinar controlador y acción
         if ($requestUri === '') {
-            $controllerName = "ItemController";
+            $controllerName = "ItemAutoController";
             $actionName = "listar";
         } else {
             $parts = explode('/', $requestUri);
