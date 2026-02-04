@@ -1,18 +1,13 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
 # Instalar extensiones necesarias para MySQL
 RUN docker-php-ext-install pdo pdo_mysql
 
-# Habilitar mod_rewrite
-RUN a2enmod rewrite
+# Instalar Nginx
+RUN apt-get update && apt-get install -y nginx && apt-get clean
 
-# Eliminar cualquier configuración de MPM que Railway pueda inyectar
-RUN rm -f /etc/apache2/mods-enabled/mpm_event.load \
-    && rm -f /etc/apache2/mods-enabled/mpm_worker.load
-
-# Asegurar que solo mpm_prefork está activo
-RUN a2dismod mpm_event mpm_worker || true \
-    && a2enmod mpm_prefork
+# Copiar configuración de Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copiar el proyecto
 COPY . /var/www/html/
@@ -20,4 +15,9 @@ COPY . /var/www/html/
 # Permisos
 RUN chown -R www-data:www-data /var/www/html
 
+# Exponer el puerto 80
 EXPOSE 80
+
+# Iniciar PHP-FPM y Nginx
+CMD service php8.2-fpm start && nginx -g "daemon off;"
+
