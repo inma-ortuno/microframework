@@ -1,5 +1,8 @@
 FROM php:8.2-apache
 
+# Desactivar MPM event para evitar conflicto
+RUN a2dismod mpm_event
+
 # Instalar extensiones necesarias para MySQL
 RUN docker-php-ext-install pdo pdo_mysql
 
@@ -12,5 +15,4 @@ COPY . /var/www/html/
 # Dar permisos a Apache
 RUN chown -R www-data:www-data /var/www/html
 
-# Exponer el puerto 80 (Railway lo redirige automáticamente)
 EXPOSE 80
