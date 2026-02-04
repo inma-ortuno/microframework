@@ -1,21 +1,23 @@
 FROM php:8.2-apache
 
-# Desactivar todos los MPM y activar solo prefork
-RUN a2dismod mpm_event || true
-RUN a2dismod mpm_worker || true
-RUN a2dismod mpm_prefork || true
-RUN a2enmod mpm_prefork
-
 # Instalar extensiones necesarias para MySQL
 RUN docker-php-ext-install pdo pdo_mysql
 
-# Habilitar mod_rewrite (opcional)
+# Habilitar mod_rewrite
 RUN a2enmod rewrite
 
-# Copiar el proyecto al servidor Apache
+# Eliminar cualquier configuración de MPM que Railway pueda inyectar
+RUN rm -f /etc/apache2/mods-enabled/mpm_event.load \
+    && rm -f /etc/apache2/mods-enabled/mpm_worker.load
+
+# Asegurar que solo mpm_prefork está activo
+RUN a2dismod mpm_event mpm_worker || true \
+    && a2enmod mpm_prefork
+
+# Copiar el proyecto
 COPY . /var/www/html/
 
-# Dar permisos a Apache
+# Permisos
 RUN chown -R www-data:www-data /var/www/html
 
 EXPOSE 80
