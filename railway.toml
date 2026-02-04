@@ -1,0 +1,6 @@
+[build]
+builder = "dockerfile"
+buildCommand = ""
+
+[deploy]
+startCommand = "service php8.2-fpm start && nginx -g 'daemon off;'"
