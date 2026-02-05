@@ -15,8 +15,11 @@ COPY . /var/www/html/
 # Permisos
 RUN chown -R www-data:www-data /var/www/html
 
-# Exponer el puerto 80
-EXPOSE 80
+# Puerto que usará Nginx dentro del contenedor
+ENV PORT=8080
+
+# Exponer el puerto 8080
+EXPOSE 8080
 
 # Iniciar PHP-FPM y Nginx
-CMD nginx -t && php-fpm -F & nginx -g "daemon off;"
+CMD php-fpm -F & nginx -g "daemon off;"
